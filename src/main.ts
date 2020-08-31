@@ -5,7 +5,7 @@ import getDiff from './git-diff';
 
 async function run(): Promise<void> {
   try {
-    if (github.context.eventName !== "pull_request") {
+    if (github.context.eventName !== 'pull_request') {
       core.debug(`Skipping suggest diff because event ${github.context.eventName} is not "pull_request"`);
       return;
     }
@@ -23,12 +23,26 @@ async function run(): Promise<void> {
     const diffString = getDiff(process.env['GITHUB_WORKSPACE']);
     const diff = parseDiff(await diffString);
 
-    octokit.pulls.createReview({
+    octokit.checks.create({
       ...github.context.repo,
-      commit_id: github.context.sha,
+      name: 'wpiformat',
+      head_sha: github.context.sha,
       pull_number: github.context.issue.number,
-      body: 'Please see these automated change suggestions',
-      event: 'REQUEST_CHANGES'
+      status: 'completed',
+      conclusion: 'failure',
+      output: {
+        title: 'wpiformat',
+        summary: 'wpiformat',
+        annotations: [
+          {
+            path: diff[0].to || '',
+            start_line: diff[0].chunks[0].newStart,
+            end_line: diff[0].chunks[0].newStart + diff[0].chunks[0].newLines,
+            annotation_level: 'failure',
+            message: JSON.stringify(diff[0])
+          }
+        ]
+      }
     });
 
     core.debug(JSON.stringify(diff));

@@ -1484,6 +1484,10 @@ const git_diff_1 = __importDefault(__webpack_require__(856));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            if (github.context.eventName !== 'pull_request') {
+                core.debug(`Skipping suggest diff because event ${github.context.eventName} is not "pull_request"`);
+                return;
+            }
             const token = core.getInput('token', { required: true });
             const prNumber = getPrNumber();
             if (!prNumber) {
@@ -1493,14 +1497,19 @@ function run() {
             const octokit = github.getOctokit(token);
             const diffString = git_diff_1.default(process.env['GITHUB_WORKSPACE']);
             const diff = parse_diff_1.default(yield diffString);
-            octokit.pulls.createReview({
-                owner: github.context.repo.owner,
-                repo: github.context.repo.repo,
-                commit_id: github.context.sha,
-                pull_number: github.context.issue.number,
-                body: "Please see these automated change suggestions",
-                event: "REQUEST_CHANGES"
-            });
+            octokit.checks.create(Object.assign(Object.assign({}, github.context.repo), { name: 'wpiformat', head_sha: github.context.sha, pull_number: github.context.issue.number, status: 'completed', conclusion: 'failure', output: {
+                    title: 'wpiformat',
+                    summary: 'wpiformat',
+                    annotations: [
+                        {
+                            path: diff[0].to || "",
+                            start_line: diff[0].chunks[0].newStart,
+                            end_line: diff[0].chunks[0].newStart + diff[0].chunks[0].newLines,
+                            annotation_level: "failure",
+                            message: JSON.stringify(diff[0])
+                        }
+                    ]
+                } }));
             core.debug(JSON.stringify(diff));
         }
         catch (error) {
