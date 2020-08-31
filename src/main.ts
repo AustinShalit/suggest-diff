@@ -5,6 +5,11 @@ import getDiff from './git-diff';
 
 async function run(): Promise<void> {
   try {
+    if (github.context.eventName !== "pull_request") {
+      core.debug(`Skipping suggest diff because event ${github.context.eventName} is not "pull_request"`);
+      return;
+    }
+
     const token = core.getInput('token', {required: true});
 
     const prNumber = getPrNumber();
@@ -19,8 +24,7 @@ async function run(): Promise<void> {
     const diff = parseDiff(await diffString);
 
     octokit.pulls.createReview({
-      owner: github.context.repo.owner,
-      repo: github.context.repo.repo,
+      ...github.context.repo,
       commit_id: github.context.sha,
       pull_number: github.context.issue.number,
       body: 'Please see these automated change suggestions',
