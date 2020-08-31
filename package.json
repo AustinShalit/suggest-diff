@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
+  "name": "suggest-diff",
   "version": "0.0.0",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "Create suggestions within each pull request by the git diff",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/AustinShalit/suggest-diff.git"
   },
   "keywords": [
     "actions",
@@ -25,7 +25,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.5"
+    "@actions/core": "^1.2.5",
+    "@actions/exec": "^1.0.4",
+    "@actions/github": "^4.0.0",
+    "@actions/io": "^1.0.2",
+    "parse-diff": "^0.7.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.10",
@@ -35,11 +39,11 @@
     "eslint": "^7.7.0",
     "eslint-plugin-github": "^4.1.1",
     "eslint-plugin-jest": "^23.20.0",
-    "jest": "^24.9.0",
+    "jest": "^26.4.2",
     "jest-circus": "^26.4.2",
     "js-yaml": "^3.14.0",
     "prettier": "2.1.1",
-    "ts-jest": "^24.3.0",
+    "ts-jest": "^26.3.0",
     "typescript": "^4.0.2"
   }
 }

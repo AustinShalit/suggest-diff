@@ -1,19 +1,21 @@
-import * as core from '@actions/core'
-import {wait} from './wait'
+import * as core from '@actions/core';
+//import * as github from '@actions/github'
+import parseDiff from 'parse-diff';
+import getDiff from './git-diff';
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
+    //const token = core.getInput('token', {required: true});
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    //const client = new github.GitHub(token);
 
-    core.setOutput('time', new Date().toTimeString())
+    const diffString = getDiff(process.env['GITHUB_WORKSPACE']);
+    const diff = parseDiff(await diffString);
+
+    core.debug(JSON.stringify(diff));
   } catch (error) {
-    core.setFailed(error.message)
+    core.setFailed(error.message);
   }
 }
 
-run()
+run();
